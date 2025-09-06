@@ -1,10 +1,10 @@
 package org.example.taskmanager.entity;
 
 import jakarta.persistence.*;
-import jdk.jfr.Frequency;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Getter
@@ -25,7 +25,7 @@ public class Activity {
     @Column(name = "description", nullable = false, length = 255)
     private String description;
 
-    @Column(name = "activity", nullable = false)
+    @Column(name = "frequency", nullable = false)
     @Enumerated(EnumType.STRING)
     private Frequency frequency;
 
@@ -39,6 +39,10 @@ public class Activity {
     @JoinColumn(name = "user_id",nullable = false,foreignKey = @ForeignKey(name = "fk_activity_user"))
     @ToString.Exclude
     private User user;
+
+    @OneToMany(mappedBy ="activity",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private List<Progress> progresses;
 
     public enum Frequency {
         DAILY("daily"),
