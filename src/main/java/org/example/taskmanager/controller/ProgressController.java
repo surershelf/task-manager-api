@@ -7,12 +7,9 @@ import org.example.taskmanager.repository.ActivityRepository;
 import org.example.taskmanager.repository.ProgressRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -71,6 +68,87 @@ public class ProgressController {
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse("Erro interno no servidor!"));
+        }
+    }
+
+    //buscar progresso por atividade
+    @GetMapping("/activity/{activityId}")
+    public ResponseEntity<?> getProgressActivity(@PathVariable Long activityId) {
+        try {
+            List<Progress> progressList = progressRepository.findByActivityIdOrderByFinishDateDesc(activityId);
+
+            List<ProgressResponse> progressResponse = progressList.stream().map(ProgressResponse::new).toList();
+
+            return ResponseEntity.ok(progressResponse);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse("Erro interno no servidor!"));
+        }
+    }
+
+    //buscar progresso por usuario
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getProgressUser(@PathVariable Long userId) {
+        try {
+            List<Progress> progressList = progressRepository.findByUserId(userId);
+
+            List<ProgressResponse> progressResponse = progressList.stream().map(ProgressResponse::new).toList();
+
+            return ResponseEntity.ok(progressResponse);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Erro interno no servidor!"));
+        }
+    }
+
+    //Busca o progresso de hoje
+    @GetMapping("/user/{userId}/today")
+    public ResponseEntity<?> getProgressUserToday(@PathVariable Long userId) {
+        try {
+            List<Progress> progressList = progressRepository.findProgressToday(userId, LocalDate.now());
+
+            List<ProgressResponse> progressResponse = progressList.stream().map(ProgressResponse::new).toList();
+
+            return ResponseEntity.ok(progressResponse);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Erro interno no servidor!"));
+        }
+    }
+
+    //Estatistica do Progresso
+    @GetMapping("/user/{userId}/stats")
+    public ResponseEntity<?> getProgressStats(@PathVariable Long userId) {
+        try{
+            long totalFinished = progressRepository.countByUserAndStatus(userId, Progress.Status.FINISHED);
+            long totalStarted = progressRepository.countByUserAndStatus(userId, Progress.Status.STARTED);
+
+            double completionRate = (totalStarted + totalFinished) > 0 ?
+                    (double) totalFinished / (totalStarted + totalFinished) * 100 : 0;
+
+            return ResponseEntity.ok(new ProgressStatsResponse(totalFinished, totalStarted,
+                    Math.round(completionRate * 100)/100));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Erro interno no servidor!"));
+        }
+    }
+
+    //Deletar progresso
+    @DeleteMapping("/{progressId}")
+    public ResponseEntity<?> deleteProgress(@PathVariable Long progressId) {
+        try {
+            Optional<Progress> progressOpt = progressRepository.findById(progressId);
+
+            if (progressOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body(new ErrorResponse("Progresso nao encontrado"));
+            }
+
+            progressRepository.deleteById(progressId);
+
+            return ResponseEntity.ok(new MessageResponse("Deletado com sucesso!"));
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Erro interno no servidor!"));
         }
     }
 }
