@@ -25,17 +25,18 @@ public interface ProgressRepository extends JpaRepository<Progress,Long> {
 
     //Progresso de hoje para um usuario
     @Query("SELECT p FROM Progress p WHERE p.activity.user.id = :userId AND p.finishDate = :today")
-    List<Progress> findProgressToday(@Param("userID")Long userID, @Param("today")LocalDate today);
+    List<Progress> findProgressToday(@Param("userId")Long userId, @Param("today")LocalDate today);
 
     //Contar progressos por status
     long countByStatus(Progress.Status status);
 
     //Contar progressos de um usuário por status
     @Query("SELECT COUNT(p) FROM Progress p WHERE p.activity.user.id = :userId AND p.status = :status")
-    long countByUserAndStatus(@Param("userID")Long userID, @Param("status") Progress.Status status);
+    long countByUserAndStatus(@Param("userId")Long userId, @Param("status") Progress.Status status);
+
 
     //Ultimo progresso de uma atividade
-    Optional<Progress> findFirstByActivityIdOrderByFinishDate(Long activityId);
+    Optional<Progress> findFirstByActivityIdOrderByFinishDateDesc(Long activityId);
 
     //Verificar se já existe progresso para atividade em data especifica
     Optional<Progress> findByActivityIdAndFinishDate(Long activityId, LocalDate date);

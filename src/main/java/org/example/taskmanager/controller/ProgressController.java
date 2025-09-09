@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 @RestController
 @RequestMapping("/api/progress")
@@ -147,6 +148,69 @@ public class ProgressController {
 
             return ResponseEntity.ok(new MessageResponse("Deletado com sucesso!"));
         }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Erro interno no servidor!"));
+        }
+    }
+
+    //Buscar por periodo
+    @GetMapping("/date-range")
+    public ResponseEntity<?> getProgressByDateRange(@RequestParam LocalDate start, @RequestParam LocalDate finish) {
+        try {
+            List<Progress> progressList = progressRepository.findByFinishDateBetween(start, finish);
+
+            List<ProgressResponse> progressResponse = progressList.stream()
+                    .map(ProgressResponse::new)
+                    .toList();
+            return ResponseEntity.ok(progressResponse);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Erro interno no servidor!"));
+        }
+    }
+
+    //contar por status geral
+    @GetMapping("/count/status/{status}")
+    public ResponseEntity<?> countByStatus(@PathVariable Progress.Status status) {
+        try {
+            long count = progressRepository.countByStatus(status);
+            return ResponseEntity.ok(new MessageResponse("Total de progresso com status" + status + ": " + count));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Erro interno no servidor!"));
+        }
+    }
+
+    // ultimo progresso por atividade
+    @GetMapping("/activity/{activityId}/last")
+    public ResponseEntity<?> getLastProgressByActivity(@PathVariable Long activityId) {
+        try {
+            Optional<Progress> progressOpt = progressRepository.findFirstByActivityIdOrderByFinishDateDesc(activityId);
+
+            if (progressOpt.isEmpty()) {
+                return ResponseEntity.ok(new ErrorResponse("Nenhum progresso encontrado para esta atividade"));
+            }
+
+            return ResponseEntity.ok(new ProgressResponse(progressOpt.get()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Erro interno no servidor!"));
+        }
+    }
+
+    //Progresso nos ultimos 30 dias
+    @GetMapping("/user/{userId}/last30days")
+    public ResponseEntity<?> getProgressLast30Days(@PathVariable Long userId) {
+        try{
+            LocalDate initDate = LocalDate.now().minusDays(30);
+            List<Progress> progressList = progressRepository.findProgressLast30Days(userId, initDate);
+
+            List<ProgressResponse> progressResponses = progressList.stream()
+                    .map(ProgressResponse::new)
+                    .toList();
+
+            return ResponseEntity.ok(progressResponses);
+        }catch (Exception e ){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("Erro interno no servidor!"));
         }
