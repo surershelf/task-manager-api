@@ -1,10 +1,38 @@
+version: '3.8'
+
 services:
   mysql:
     image: 'mysql:latest'
+    container_name: taskmanager-mysql
     environment:
-      - 'MYSQL_DATABASE=mydatabase'
-      - 'MYSQL_PASSWORD=secret'
-      - 'MYSQL_ROOT_PASSWORD=verysecret'
-      - 'MYSQL_USER=myuser'
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: taskmanager_db
+      MYSQL_USER: taskuser
+      MYSQL_PASSWORD: taskpassword
     ports:
       - '3307:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - taskmanager-network
+
+  app:
+    build: .
+    container_name: taskmanager-app
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/taskmanager_db
+      SPRING_DATASOURCE_USERNAME: taskuser
+      SPRING_DATASOURCE_PASSWORD: taskpassword
+    ports:
+      - "8080:8080"
+    networks:
+      - taskmanager-network
+
+volumes:
+  mysql_data:
+
+networks:
+  taskmanager-network:
+    driver: bridge

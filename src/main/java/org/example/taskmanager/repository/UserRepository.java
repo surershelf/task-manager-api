@@ -17,11 +17,9 @@ public interface UserRepository extends JpaRepository <User, Long> {
     //verificar se existe o email
     boolean existsByEmail(String email);
 
-    //buscar user com suas atividades
-    @Query("SELECT u FROM User u LEFT JOIN FETCH u.activities WHERE u.id = :id")
-    Optional<User> findByIdWithActivity(@Param("id") Long id);
+    @Query("SELECT COUNT(a) FROM Activity a WHERE a.user.id = :userId")
+    long countTotalActivitiesByUserId(@Param("userId") Long userId);
 
-    //  buscar por atividades ativas
-    @Query("SELECT u FROM User u LEFT JOIN FETCH u.activities a WHERE u.id=:id AND (a.active = true OR a IS NULL )")
-    Optional<User> findByIdWithActiveAtivity(@Param("id") Long id);
+    @Query("SELECT COUNT(a) FROM Activity a WHERE a.user.id = :userId AND a.active = true")
+    long countActiveActivitiesByUserId(@Param("userId") Long userId);
 }
