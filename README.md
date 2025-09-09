@@ -199,7 +199,7 @@ Distribuído sob a MIT License. Veja `LICENSE` para mais informações.
 
 ## Contact
 
-Seu Nome - [seu.email@exemplo.com](mailto:seu.email@exemplo.com)
+Mazzo - [mazzolucas0@gmail.com](mailto:mazzolucas0@gmail.com)
 
 Link do Projeto: [https://github.com/surershelf/task-manager-api](https://github.com/surershelf/task-manager-api)
 
