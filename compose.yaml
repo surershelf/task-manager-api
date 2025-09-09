@@ -18,6 +18,7 @@ services:
 
   app:
     build: .
+    image: surershelf/taskmanager-app:latest
     container_name: taskmanager-app
     depends_on:
       - mysql
