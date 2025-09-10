@@ -111,7 +111,17 @@ server.port=8080
 
 ## API Documentation
 
-A API está documentada usando OpenAPI 3.0 e Swagger UI. Após iniciar a aplicação, acesse:
+A API está documentada usando OpenAPI 3.0 e Swagger UI. 
+
+### 🌐 Live Documentation
+
+**Acesse a documentação interativa da API em produção:**
+
+**[📋 Task Manager API - Swagger UI](https://task-api-mazzo.up.railway.app/swagger-ui/index.html)**
+
+### Local Development
+
+Para desenvolvimento local, após iniciar a aplicação, acesse:
 
 - **Swagger UI**: `http://localhost:8080/swagger-ui.html`
 - **API Docs**: `http://localhost:8080/v3/api-docs`
