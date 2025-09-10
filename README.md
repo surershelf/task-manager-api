@@ -180,12 +180,7 @@ Para deploy na Railway:
 1. Conecte seu repositório GitHub
 2. Configure as variáveis de ambiente
 3. Deploy automático será executado
-
-### AWS Elastic Beanstalk
-
-1. Crie um arquivo `Dockerrun.aws.json`
-2. Configure RDS MySQL
-3. Faça upload do arquivo ZIP
+   
 
 ## Database Schema
 
